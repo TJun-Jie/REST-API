@@ -3,6 +3,9 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
+const { Sequelize } = require('sequelize');
+const {User} = require('./models');
+const {Course} = require('./models');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -10,16 +13,20 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
 // TODO setup your api routes here
 
 // setup a friendly greeting for the root route
-app.get('/', (req, res) => {
+app.get('/', async(req, res) => {
+  const users =  await Course.findAll()
+  console.log(users)
   res.json({
     message: 'Welcome to the REST API project!',
   });
+
 });
 
 // send 404 if no other route matched
