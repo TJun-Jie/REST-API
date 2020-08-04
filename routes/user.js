@@ -1,7 +1,7 @@
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const {User} = require('../models')
-const bodyParser = require('body-parser').json();
 
 
 // Route handler
@@ -24,16 +24,33 @@ router.get('/users', asyncHandler( async (req, res ) => {
     }
 }));
 
-
-router.post('/users',bodyParser,asyncHandler(  async (req, res)  => {
-    const user = req.body;
-    await User.create(user);
-    res.setHeader("Location", "/");
-    res.status(201).end();
-
-
-    
-}))
+router.post('/users',[
+    check('firstName')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a firstName'),
+    check('lastName')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a lastName'),
+    check('emailAddress')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a email'),
+    check('password')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a password'),
+    ],asyncHandler(  async (req, res)  => {
+        const errors = validationResult(req);
+          // If there are validation errors...
+        if (!errors.isEmpty()) {
+            // Use the Array `map()` method to get a list of error messages.
+            const errorMessages = errors.array().map(error => error.msg);
+            // Return the validation errors to the client.
+            res.status(400).json({ errors: errorMessages });
+        } else {      
+            await User.create(req.body);
+            res.setHeader("Location", "/");
+            res.status(201).end();       
+        }    
+}));
 
 
 module.exports = router;

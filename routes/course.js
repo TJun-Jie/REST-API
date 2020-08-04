@@ -32,11 +32,20 @@ router.get('/courses/:id', asyncHandler( async (req, res ) => {
 router.post('/courses', [
     // Course title must be present
     check('title')
-        .not().isEmpty()
+        .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a title'),
+    // Description
     check('description')
         .exists({ checkNull: true, checkFalsy: true })
-        .withMessage('Please Provide a description')
+        .withMessage('Please Provide a description'),
+    // UserId
+    check('UserId')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a UserId'),
+    check('estimatedTime')
+        .optional(),
+    check('materailsNeeded')
+        .optional()
     ], asyncHandler( async (req, res ) => {
         const errors = validationResult(req);
         console.log(req.body)
@@ -57,12 +66,40 @@ router.post('/courses', [
 }));
 
 
-router.put('/courses/:id', asyncHandler( async (req,res ) => {
-    const updatedInfo = req.body;
-    const id =  req.params.id;
-    const targettedCourse =  await Course.findByPk(id);
-    await targettedCourse.update(req.body);
-    res.status(204).end();
+router.put('/courses/:id',[
+    // Course title must be present
+    check('title')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a title'),
+    // Description
+    check('description')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a description'),
+    // UserId
+    check('UserId')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Please Provide a UserId'),
+    check('estimatedTime')
+        .optional(),
+    check('materailsNeeded')
+        .optional()
+    ] ,asyncHandler( async (req,res ) => {
+        const errors = validationResult(req);
+        // If there are errrors
+        if(!errors.isEmpty()) {
+            const errorMessages = errors.array().map(error => error.msg);
+            // Return the validation errors to the client.
+            res.status(400).json({ errors: errorMessages });
+        } 
+        // If there are no errors
+        else{
+            const updatedInfo = req.body;
+            const id =  req.params.id;
+            const targettedCourse =  await Course.findByPk(id);
+            await targettedCourse.update(updatedInfo);
+            res.status(204).end();
+        }
+
 }));
 
 router.delete('/course/:id', asyncHandler (async (req, res) => {
