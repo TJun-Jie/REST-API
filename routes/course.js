@@ -2,7 +2,6 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const {Course} = require('../models')
-const bodyParser = require('body-parser').json();
 
 
 // Route handler
@@ -38,7 +37,7 @@ router.post('/courses', [
     check('description')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a description')
-    ], bodyParser, asyncHandler( async (req, res ) => {
+    ], asyncHandler( async (req, res ) => {
         const errors = validationResult(req);
         console.log(req.body)
         // If there are errrors
@@ -58,7 +57,7 @@ router.post('/courses', [
 }));
 
 
-router.put('/courses/:id', bodyParser, asyncHandler( async (req,res ) => {
+router.put('/courses/:id', asyncHandler( async (req,res ) => {
     const updatedInfo = req.body;
     const id =  req.params.id;
     const targettedCourse =  await Course.findByPk(id);
