@@ -46,7 +46,7 @@ router.post('/courses', [
         .optional(),
     check('materailsNeeded')
         .optional()
-    ], asyncHandler( async (req, res ) => {
+    ], asyncHandler( async (req, res, next ) => {
         const errors = validationResult(req);
         console.log(req.body)
         // If there are errrors
@@ -57,11 +57,17 @@ router.post('/courses', [
         } 
         // If there are no errors
         else{
-            const course = req.body;
-            const newCourse = await Course.create(course);
-            const newCourseId = newCourse.id;
-            res.setHeader("Location", `/api/course/${newCourseId}`);
-            res.status(201).end();
+            try {
+                const course = req.body;
+                const newCourse = await Course.create(course);
+                const newCourseId = newCourse.id;
+                res.setHeader("Location", `/api/course/${newCourseId}`);
+                res.status(201).end();
+                
+            } catch (error) {
+                error.status = 400;
+                next(error);
+            }
         }
 }));
 
@@ -83,7 +89,7 @@ router.put('/courses/:id',[
         .optional(),
     check('materailsNeeded')
         .optional()
-    ] ,asyncHandler( async (req,res ) => {
+    ] ,asyncHandler( async (req,res, next ) => {
         const errors = validationResult(req);
         // If there are errrors
         if(!errors.isEmpty()) {
@@ -93,16 +99,22 @@ router.put('/courses/:id',[
         } 
         // If there are no errors
         else{
-            const updatedInfo = req.body;
-            const id =  req.params.id;
-            const targettedCourse =  await Course.findByPk(id);
-            await targettedCourse.update(updatedInfo);
-            res.status(204).end();
+            try {
+                const updatedInfo = req.body;
+                const id =  req.params.id;
+                const targettedCourse =  await Course.findByPk(id);
+                await targettedCourse.update(updatedInfo);
+                res.status(204).end();
+                
+            } catch (error) {
+                error.status = 400;
+                next(error);
+            }
         }
 
 }));
 
-router.delete('/course/:id', asyncHandler (async (req, res) => {
+router.delete('/courses/:id', asyncHandler (async (req, res) => {
     const id = req.params.id;
     const targettedCourse =  await Course.findByPk(id);
     await targettedCourse.destroy();

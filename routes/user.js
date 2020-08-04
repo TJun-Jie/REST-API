@@ -37,7 +37,7 @@ router.post('/users',[
     check('password')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a password'),
-    ],asyncHandler(  async (req, res)  => {
+    ],asyncHandler(  async (req, res, next)  => {
         const errors = validationResult(req);
           // If there are validation errors...
         if (!errors.isEmpty()) {
@@ -46,9 +46,16 @@ router.post('/users',[
             // Return the validation errors to the client.
             res.status(400).json({ errors: errorMessages });
         } else {      
-            await User.create(req.body);
-            res.setHeader("Location", "/");
-            res.status(201).end();       
+            try {
+                await User.create(req.body);
+                res.setHeader("Location", "/");
+                res.status(201).end();       
+                
+            } catch (error) {
+                console.log('wrong')
+                error.status = 400;
+                next(error);
+            }
         }    
 }));
 
