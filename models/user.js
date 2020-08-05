@@ -44,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
     emailAddress:{
       type: DataTypes.STRING,
       allowNull: false,
+      unique: {
+        args: true,
+        msg: 'Email has been taken. Please try another email'
+      },
       validate: {
         notNull: true,
         notEmpty: true,
