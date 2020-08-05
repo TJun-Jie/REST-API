@@ -19,19 +19,14 @@ const authenticateUser = async(req, res, next) => {
                 emailAddress: credentials.name
             }
         })
-
       // If a user was successfully retrieved from the data store...
       if (user) {
-        // Use the bcryptjs npm package to compare the user's password
-        // (from the Authorization header) to the user's password
-        // that was retrieved from the data store.
+        // Use the bcryptjs npm package to compare the user's password of the database and the one in the auth
         const authenticated = bcryptjs
           .compareSync(credentials.pass, user.password);
-  
         // If the passwords match...
         if (authenticated) {
           console.log(`Authentication successful for username: ${user.emailAddress}`);
-  
           // Then store the retrieved user object on the request object
           // so any middleware functions that follow this middleware function
           // will have access to the user's information.
@@ -45,7 +40,6 @@ const authenticateUser = async(req, res, next) => {
     } else {
       message = 'Auth header not found';
     }
-  
     // If user authentication failed...
     if (message) {
       console.warn(message);

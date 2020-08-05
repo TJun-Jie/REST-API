@@ -7,39 +7,40 @@ const {User} = require('../models');
 const { asyncHandler, authenticateUser} = require('./helper');
 
 
-
+// Get the currently authenicated user
 router.get('/users',authenticateUser, asyncHandler( async (req, res ) => {
     const user = req.currentUser;
-    // if(user){
-    //     res.json(user);
-    // } else {
-    //     res.status(400).end();
-    // }
-    const findUser = await User.findOne({
-        where: {
-            emailAddress: user.emailAddress
-        },
-        attributes: {
-            exclude: ['password', 'createdAt' , 'updatedAt']
-        }       
-    })
-    res.json(findUser)
+    if(user){
+        const findUser = await User.findOne({
+            where: {
+                emailAddress: user.emailAddress
+            },
+            attributes: {
+                exclude: ['password', 'createdAt' , 'updatedAt']
+            }       
+        })
+        res.json(findUser)
+    } else {
+        res.status(400).end();
+    }
     
-
-
-
 }));
 
+// Creating user
 router.post('/users',[
+    // First name is required
     check('firstName')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a firstName'),
+    // Last name is required
     check('lastName')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a lastName'),
+    // Email address is required
     check('emailAddress')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a email'),
+    //  Password is required
     check('password')
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a password'),
