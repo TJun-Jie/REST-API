@@ -58,10 +58,6 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notNull: true,
         notEmpty: true,
-        is: {
-          args: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-          msg: 'Password must be minimum eight characters, at least one uppercase letter, one lowercase letter and one number:'
-        }
       }
     } 
   }, {

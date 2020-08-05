@@ -1,27 +1,23 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
+const bcryptjs = require('bcryptjs');
+const auth = require('basic-auth');
 const router = express.Router();
-const {User} = require('../models')
+const {User} = require('../models');
+const { asyncHandler, authenticateUser} = require('./helper');
 
 
-// Route handler
-const asyncHandler = (cb) =>  {
-    return async(req, res, next) => {
-        try {
-            await cb(req, res, next)
-        } catch (error) {
-            next(error);
-        }
-    }
-}
 
-router.get('/users', asyncHandler( async (req, res ) => {
+router.get('/users',authenticateUser, asyncHandler( async (req, res ) => {
     const user = req.currentUser;
     if(user){
         res.json(user);
     } else {
         res.status(400).end();
     }
+    // res.json(user);
+
+
 }));
 
 router.post('/users',[
@@ -47,7 +43,9 @@ router.post('/users',[
             res.status(400).json({ errors: errorMessages });
         } else {      
             try {
-                await User.create(req.body);
+                const user  = req.body;
+                user.password = bcryptjs.hashSync(user.password);
+                await User.create(user);
                 res.setHeader("Location", "/");
                 res.status(201).end();       
                 

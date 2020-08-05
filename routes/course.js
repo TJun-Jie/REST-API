@@ -2,18 +2,8 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const {Course} = require('../models')
+const { asyncHandler, authenticateUser} = require('./helper');
 
-
-// Route handler
-const asyncHandler = (cb) =>  {
-    return async(req, res, next) => {
-        try {
-            await cb(req, res, next)
-        } catch (error) {
-            next(error);
-        }
-    }
-}
 
 router.get('/courses', asyncHandler( async (req, res ) => {
     const Courses = await Course.findAll();
@@ -46,7 +36,7 @@ router.post('/courses', [
         .optional(),
     check('materailsNeeded')
         .optional()
-    ], asyncHandler( async (req, res, next ) => {
+    ],authenticateUser,  asyncHandler( async (req, res, next ) => {
         const errors = validationResult(req);
         console.log(req.body)
         // If there are errrors
@@ -89,7 +79,7 @@ router.put('/courses/:id',[
         .optional(),
     check('materailsNeeded')
         .optional()
-    ] ,asyncHandler( async (req,res, next ) => {
+    ] ,authenticateUser,  asyncHandler( async (req,res, next ) => {
         const errors = validationResult(req);
         // If there are errrors
         if(!errors.isEmpty()) {
@@ -114,7 +104,7 @@ router.put('/courses/:id',[
 
 }));
 
-router.delete('/courses/:id', asyncHandler (async (req, res) => {
+router.delete('/courses/:id',authenticateUser,  asyncHandler (async (req, res) => {
     const id = req.params.id;
     const targettedCourse =  await Course.findByPk(id);
     await targettedCourse.destroy();
