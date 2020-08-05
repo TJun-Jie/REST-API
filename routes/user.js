@@ -10,12 +10,22 @@ const { asyncHandler, authenticateUser} = require('./helper');
 
 router.get('/users',authenticateUser, asyncHandler( async (req, res ) => {
     const user = req.currentUser;
-    if(user){
-        res.json(user);
-    } else {
-        res.status(400).end();
-    }
-    // res.json(user);
+    // if(user){
+    //     res.json(user);
+    // } else {
+    //     res.status(400).end();
+    // }
+    const findUser = await User.findOne({
+        where: {
+            emailAddress: user.emailAddress
+        },
+        attributes: {
+            exclude: ['password', 'createdAt' , 'updatedAt']
+        }       
+    })
+    res.json(findUser)
+    
+
 
 
 }));

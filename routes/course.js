@@ -6,17 +6,30 @@ const { asyncHandler, authenticateUser} = require('./helper');
 
 
 router.get('/courses', asyncHandler( async (req, res ) => {
-    const Courses = await Course.findAll();
+    const Courses = await Course.findAll({
+        attributes: {
+            exclude: ['createdAt' , 'updatedAt']
+        }     
+    });
     res.json(Courses);
 }));
-router.get('/courses/:id', asyncHandler( async (req, res ) => {
+router.get('/courses/:id', asyncHandler( async (req, res , next) => {
     const id = req.params.id;
     const specificCourse = await Course.findOne({
         where: {
             id: id
-        }
+        },
+        attributes: {
+            exclude: ['createdAt' , 'updatedAt']
+        }     
     });
-    res.json(specificCourse);
+    if(specificCourse){
+        res.json(specificCourse);
+    } else {
+        const error = new Error('Course does not exist')
+        error.status = 404;
+        next(error);
+    }
 }));
 
 router.post('/courses', [
@@ -29,9 +42,9 @@ router.post('/courses', [
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a description'),
     // UserId
-    check('UserId')
+    check('userId')
         .exists({ checkNull: true, checkFalsy: true })
-        .withMessage('Please Provide a UserId'),
+        .withMessage('Please Provide a userId'),
     check('estimatedTime')
         .optional(),
     check('materailsNeeded')
@@ -72,9 +85,9 @@ router.put('/courses/:id',[
         .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Please Provide a description'),
     // UserId
-    check('UserId')
+    check('userId')
         .exists({ checkNull: true, checkFalsy: true })
-        .withMessage('Please Provide a UserId'),
+        .withMessage('Please Provide a userId'),
     check('estimatedTime')
         .optional(),
     check('materailsNeeded')
