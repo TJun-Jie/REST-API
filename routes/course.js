@@ -68,7 +68,7 @@ router.post('/courses', [
                 const course = req.body;
                 const newCourse = await Course.create(course);
                 const newCourseId = newCourse.id;
-                res.setHeader("Location", `/api/course/${newCourseId}`);
+                res.setHeader("Location", `/api/courses/${newCourseId}`);
                 res.status(201).end();
                 
             } catch (error) {
